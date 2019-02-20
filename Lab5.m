@@ -20,7 +20,6 @@ maxEpisodes = 1; %Max episodes of attempts
 
 
 
- timesReached = zeros(length(states),2);
  
  %if exist('SavedQ.mat', 'file') == 2
  %   load('SavedQ','Q')
@@ -48,7 +47,20 @@ g  = plot(0.001,0,'.k','MarkerSize',30); % Pendulum axis point
 hold off
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
+TrSet = {}
+for example = 1:200
+    currentState = startState;
+    TrSet{1, example} = [currentState];
+    TrSet{2, example} = [0];
+
+    while(abs(currentState(1)) <= 2.4 && abs(currentState(3))<=pi/15)
+        action = round(20*rand-10);
+        nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4)); 
+        TrSet{1, example} = [TrSet{1, example} ; nextState];
+        TrSet{2, example} = [TrSet{2, example}; action];
+        currentState = nextState;
+    end
+end
 
 for episode = 1:maxEpisodes
     if train == 0
@@ -69,7 +81,7 @@ for episode = 1:maxEpisodes
         %Simulate
         %%%%%%%%%%%%%%%%%%%%%
         
-        nextState = SimulatePendel(actions(actionIndex), currentState(1), currentState(2), currentState(3), currentState(4)); 
+        nextState = SimulatePendel(0.1, currentState(1), currentState(2), currentState(3), currentState(4)); 
           
         %%%%%%%%%%%%%%%%%%%%%%
         %Train on result
