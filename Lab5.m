@@ -47,7 +47,8 @@ g  = plot(0.001,0,'.k','MarkerSize',30); % Pendulum axis point
 hold off
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-TrSet = {}
+TrSet = {};
+Tripplet = [];
 for example = 1:200
     currentState = startState;
     TrSet{1, example} = [currentState];
@@ -60,6 +61,7 @@ for example = 1:200
         TrSet{2, example} = [TrSet{2, example}; action];
         currentState = nextState;
     end
+    Tripplet = [Tripplet; [TrSet{1, example}(1:end-1,:) TrSet{2, example}(2:end,:) TrSet{1, example}(2:end,:)]];
 end
 
 for episode = 1:maxEpisodes
