@@ -16,31 +16,15 @@ x1 = -2.4:1.2:2.4; %x pos. The position of the cart
 x2 = -2:1:2; %x dist dot. The speed of the cart
 
 actions = [-10, 10]; % Either force backward or forward
-maxEpisodes = 10000000000; %Max episodes of attempts
+maxEpisodes = 1; %Max episodes of attempts
 
-
-%----Create all the states combinations
-    index = 1;
- for i=1:length(x1)   
-    for j=1:length(x2)
-        for k = 1:length(x3)
-            for l = 1:length(x4)
-                states(index,1)=x1(i);
-                states(index,2)=x2(j);
-                states(index,3)=x3(k);
-                states(index,4)=x4(l);
-                index=index+1;
-            end
-        end
-    end
- end
 
 
  timesReached = zeros(length(states),2);
- Q = zeros(length(states), 2);
- if exist('SavedQ.mat', 'file') == 2
-    load('SavedQ','Q')
- end
+ 
+ %if exist('SavedQ.mat', 'file') == 2
+ %   load('SavedQ','Q')
+ %end
    %Initalize starting values
  currentState = startState;
  
@@ -81,48 +65,33 @@ for episode = 1:maxEpisodes
            set(g,'XData',currentState(1)); %x pos of dot
            set(f,'YData',[0 cos(currentState(3))]); %y pos of stick
  
-    
-   [~,stateIndex] = min(sum((states - repmat(currentState,[size(states,1),1])).^2,2)); %closest state as described by our state
-   
-   if (rand()>0.1 || ~train)
-        [~,actionIndex] = max(Q(stateIndex,:)); % Calculates the next action to do from Qmatrix
-   else
-       if(rand >= 0.5)
-       actionIndex = 1;
-       else
-       actionIndex = 2;
-       end
-   end
- 
-
-       nextState = SimulatePendel(actions(actionIndex), currentState(1), currentState(2), currentState(3), currentState(4)); 
-
-       [~,nextStateIndex] = min(sum((states - repmat(nextState,[size(states,1),1])).^2,2)); %closest state as described by our state
-       if(train == 1)
-           timesReached(stateIndex,actionIndex) = timesReached(stateIndex,actionIndex) + 1;
-           Q(stateIndex,actionIndex) = Q(stateIndex,actionIndex) + 1/timesReached(stateIndex,actionIndex) * (0.9*max(Q(nextStateIndex,:)) - Q(stateIndex,actionIndex));
+        %%%%%%%%%%%%%%%%%%%%%
+        %Simulate
+        %%%%%%%%%%%%%%%%%%%%%
+        
+        nextState = SimulatePendel(actions(actionIndex), currentState(1), currentState(2), currentState(3), currentState(4)); 
           
-           if(abs(nextState(1)) > 2.4 || abs(nextState(3))>pi/15)
-               Q(stateIndex,actionIndex) = Q(stateIndex,actionIndex)-1/timesReached(stateIndex,actionIndex);
-          end
-       end
-
-       currentState = nextState;
-       clc;
-       disp('%%%%%%%%%%%%%%%%%%%%%%%%%%');
-       disp(episode)
-       disp('cart distance is: ');
-       disp(currentState(1));
-       disp('cart speed is: ');
-       disp(currentState(2));
-       disp('Angle is: ');
-       %disp(currentState(3));
-       disp(180/pi*currentState(3));
-       disp('Angle velocity is: ');
-       %disp(180/pi*currentState(4));
-       disp(currentState(4));
-       disp('Survival time');
-       disp(index*0.02);
+        %%%%%%%%%%%%%%%%%%%%%%
+        %Train on result
+        %%%%%%%%%%%%%%%%%%%%%%
+       
+       
+        currentState = nextState;
+        clc;
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%');
+        disp(episode)
+        disp('cart distance is: ');
+        disp(currentState(1));
+        disp('cart speed is: ');
+        disp(currentState(2));
+        disp('Angle is: ');
+        %disp(currentState(3));
+        disp(180/pi*currentState(3));
+        disp('Angle velocity is: ');
+        %disp(180/pi*currentState(4));
+        disp(currentState(4));
+        disp('Survival time');
+        disp(index*0.02);
         if (abs(currentState(1)) <= 2.4 && abs(currentState(3))<=pi/15 && index < 20000 )
                 pause(toPause)
         end
