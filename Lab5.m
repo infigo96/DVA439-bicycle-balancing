@@ -1,3 +1,4 @@
+close all;
 clc;
 clear;
 toPlot = 1; %plot the first history of the cart and rod
@@ -54,14 +55,14 @@ for example = 1:200
     TrSet{1, example} = [currentState];
     TrSet{2, example} = [0];
 
-    while(abs(currentState(1)) <= 2 && abs(currentState(3))<=pi/15)
-        action = 20*round(rand)-10;
-        nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4));
+    while(abs(currentState(1)) <= 2.4 && abs(currentState(3))<=pi/15)
+        action = 10*round(2*rand) + 10;
+        nextState = SimulatePendel(action + 4*rand-2, currentState(1), currentState(2), currentState(3), currentState(4));
         TrSet{1, example} = [TrSet{1, example} ; nextState];
         TrSet{2, example} = [TrSet{2, example}; action];
         currentState = nextState;
     end
-    cost = (abs(TrSet{1,example}(:,3)) > pi/20 | (abs(TrSet{1,example}(:,1)) > 2.4));
+    cost = (abs(TrSet{1,example}(:,3)) > pi/20 | (abs(TrSet{1,example}(:,1)) > 2));
     Tripplet = [Tripplet; [TrSet{1,example}(1:end-1,:) TrSet{2,example}(2:end,:) cost(2:end)]];
 end
 QNeur;
@@ -84,13 +85,16 @@ for episode = 1:maxEpisodes
         %Simulate
         %%%%%%%%%%%%%%%%%%%%%
         Q1 = net([currentState 10]');
+        Q3 = net([currentState 0]');
         Q2 = net([currentState -10]');
-        if(Q1 > Q2)
+        if(Q2 > Q1 && Q3 > Q1)
+            action = 10;
+        elseif(Q1 > Q2 && Q3 > Q2)
             action = -10;
         else
-            action = 10;
+            action = 0;
         end
-        nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4)); 
+        nextState = SimulatePendel(action rand -0.5, currentState(1), currentState(2), currentState(3), currentState(4)); 
           
         %%%%%%%%%%%%%%%%%%%%%%
         %traindum on result
