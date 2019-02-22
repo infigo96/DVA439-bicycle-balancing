@@ -7,25 +7,25 @@
 %   currentState - input data.
 %   action - target data.
 
-x = currentState';
-t = action';
+x = Tripplet(:,1:5)';
+t = Tripplet(:,6)';
 
 % Choose a Training Function
 % For a list of all training functions type: help nntrain
 % 'trainlm' is usually fastest.
 % 'trainbr' takes longer but may be better for challenging problems.
 % 'trainscg' uses less memory. Suitable in low memory situations.
-trainFcn = 'trainrp';  % Levenberg-Marquardt backpropagation.
-
+trainFcn = 'trainrp';  % resiliant backpropagation.
 % Create a Fitting Network
-hiddenLayerSize = 10;
+hiddenLayerSize = [10 10];
+
 net = fitnet(hiddenLayerSize,trainFcn);
 
 % Choose Input and Output Pre/Post-Processing Functions
 % For a list of all processing functions type: help nnprocess
 net.input.processFcns = {'removeconstantrows','mapminmax'};
 net.output.processFcns = {'removeconstantrows','mapminmax'};
-
+net.trainParam.showWindow = false;
 % Setup Division of Data for Training, Validation, Testing
 % For a list of all data division functions type: help nndivision
 net.divideFcn = 'dividerand';  % Divide data randomly
