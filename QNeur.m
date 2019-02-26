@@ -7,8 +7,8 @@
 %   currentState - input data.
 %   action - target data.
 
-x = Tripplet(:,1:5)';
-t = Tripplet(:,6)';
+x = Input(:,1:5)';
+t = Input(:,6)';
 
 % Choose a Training Function
 % For a list of all training functions type: help nntrain
@@ -25,13 +25,13 @@ net = fitnet(hiddenLayerSize,trainFcn);
 % For a list of all processing functions type: help nnprocess
 net.input.processFcns = {'removeconstantrows','mapminmax'};
 net.output.processFcns = {'removeconstantrows','mapminmax'};
-%net.trainParam.showWindow = false;
+net.trainParam.showWindow = false;
 % Setup Division of Data for Training, Validation, Testing
 % For a list of all data division functions type: help nndivision
 net.divideFcn = 'dividerand';  % Divide data randomly
 net.divideMode = 'sample';  % Divide up every sample
-net.divideParam.trainRatio = 65/100;
-net.divideParam.valRatio = 30/100;
+net.divideParam.trainRatio = 70/100;
+net.divideParam.valRatio = 25/100;
 net.divideParam.testRatio = 5/100;
 
 % Choose a Performance Function
@@ -60,7 +60,7 @@ valPerformance = perform(net,valTargets,y)
 testPerformance = perform(net,testTargets,y)
 
 % View the Network
-view(net)
+%view(net)
 
 % Plots
 % Uncomment these lines to enable various plots.
