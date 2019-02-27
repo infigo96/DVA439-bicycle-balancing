@@ -62,7 +62,7 @@ for example = 1:1000
     TrSet{2, example} = [0];
     
     while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle)
-        action = actions(round(3*rand+1)*1);
+        action = actions(floor(4*rand)+1);
         nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4));
         TrSet{1, example} = [TrSet{1, example} ; nextState];
         TrSet{2, example} = [TrSet{2, example}; action];
