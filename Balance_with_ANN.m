@@ -24,7 +24,7 @@ deathCartPos = 2.4;
 i = 0;
 currentState = startState;
 
-%% Set up the pendulum plot
+% Set up the pendulum plot
 panel = figure;
 panel.Color = [1 1 1];
 
@@ -42,7 +42,7 @@ line([-2.4 2.4],[0 0],'color', 'red')
 g  = plot(0.001,0,'.k','MarkerSize',30); % Pendulum axis point
 hold off
 
-%% Generate random net data
+% Generate random net data
 TrSet = {};
 Input = [];
 firstTime = 0;
@@ -61,9 +61,10 @@ for i = 1:1000
     Target = 0.10 + 0.80*(abs(TrSet{1,i}(:,3)) > allowedPoleAngle);
     Input = [Input; [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)] Target(2:end)];
 end
-TrainANN;
-firstTime = 1;
-%% Generate data
+[net,tr] = train(net,Input(1:end, 1:5),Input(1:end, 6));
+%TrainANN;
+%firstTime = 1;
+% Generate data
 
 bestActionNr = 0;
 range = 500;
@@ -128,7 +129,7 @@ for episode = 1:20
     end
     
     Target = 0.10 + 0.80*(abs(TrSet{1,episode}(:,3)) > allowedPoleAngle);
-    Input = [Input; [TrSet{1,episode}(1:end-1,:) TrSet{2,episode}(2:end,:)] Target(2:end)];
+    Input = [Input; TrSet{1,episode}(1:end-1,:) TrSet{2,episode}(2:end,:) Target(2:end)];
     TrainANN;
     
     clc;
@@ -141,7 +142,7 @@ for episode = 1:20
     
 end
 
-%%
+%
 currentState = startState;
 w1 = bestw1;
 w2 = bestw2;
@@ -205,7 +206,7 @@ while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAng
     grap(i,3) = currentState(3)*180/pi;
 end
 
-%% Plot
+% Plot
 figure;
 plot(grap(:,2),grap(:,1));
 ylabel("time (s)");
