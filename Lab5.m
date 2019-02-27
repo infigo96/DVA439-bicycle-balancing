@@ -52,6 +52,7 @@ line([-2.4 2.4],[0 0],'color', 'red')
 g  = plot(0.001,0,'.k','MarkerSize',30); % Pendulum axis point
 hold off
 
+% Q-fitted Neural Network
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 TrSet = {};
 Triplet = [];
