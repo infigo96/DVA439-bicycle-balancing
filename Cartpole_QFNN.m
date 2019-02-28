@@ -168,9 +168,13 @@ for k = 1:15
         end
         % Calculate cost of next state
         %Target = min(net([TrSet{1,i}(:,1:4)' actions(1)]), net([TrSet{1,i}(:,1:4)' actions(2)]), net([TrSet{1,i}(:,1:4)' actions(3)]), net([TrSet{1,i}(:,1:4)' actions(4)]));
-         
-        Target = 0.05 + 0.90*(abs(TrSet{1,i}(:,3)) > allowedPoleAngle | abs(TrSet{1,i}(:,1)) > allowedCartPos);
-        Input = [Input; [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)] Target(2:end)];
+         %for(minil = 1:lenght(TrSet{1,i}(1,:)))
+         minimididadta = min(min(net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]'),net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')),min(net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]'),net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')))';
+%             Q3 = net([currentState actions(3)]');
+%             Q4 = net([currentState actions(4)]');
+                %net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')
+        Target = 0.05 + 0.1*(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos) + 0.9*minimididadta;
+        Input = [Input; [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)] Target];
         if actionNr == 1000
             speedUp = speedUp + 1;
         end
