@@ -6,7 +6,7 @@ function [net] = initNN(x, t, hiddenLayerSize)
 % t = Input(:,6)';
 
 % Choose a Training Function | help nntrain
-trainFcn = 'trainscg';  % resiliant backpropagation.
+trainFcn = 'trainrp';  % resiliant backpropagation.
 
 % Create a Fitting Network
 %hiddenLayerSize = [10 10];
