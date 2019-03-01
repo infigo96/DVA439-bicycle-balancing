@@ -95,7 +95,7 @@ Target = [];
 for k = 1:15
     speedUp = 0;
     for i = 1:20+10*k
-        currentState = startState;
+        currentState = [-1.2 + (2.4)*rand, 0 ,-pi/40 + (pi/20)*rand, 0];
         TrSet{1, i} = [currentState];
         TrSet{2, i} = [0];
         actionNr = 0;
@@ -103,18 +103,17 @@ for k = 1:15
         while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && actionNr < maxRange)
             
             % Exploration 1/(epsilon) of the time, set false if no exploration
-            epsilon = 5+k;
-            action = actions(floor(4*rand)+1);
-            %                 Q1 = net([currentState actions(1)]');
-            %                 Q2 = net([currentState actions(2)]');
-            %                 Q3 = net([currentState actions(3)]');
-            %                 Q4 = net([currentState actions(4)]');
-            
+            epsilon = 5*(k-1)+2;
+            if(mod(actionNr, epsilon) == 0 && true)
+                acindex = floor(4*rand)+1;
+            else
+                [minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
+            end
             %    [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
             %    action = actions(index);
             
             %Next state is suspect to a random noise with magnitude 20% of action '*(1 + 0.2*(2*rand - 1))'
-            nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4));
+            nextState = SimulatePendel(actions(acindex), currentState(1), currentState(2), currentState(3), currentState(4));
             TrSet{1, i} = [TrSet{1, i} ; nextState];
             TrSet{2, i} = [TrSet{2, i}; action];
             currentState = nextState;
