@@ -45,20 +45,42 @@ TrSet = {};
 Input = [];
 goal = 100;
 nrOfActions = 0;
-net =fitnet([5 5],'trainrp');
 
+% Init Net
+% Choose a Training Function and size
+trainFcn = 'trainrp';
+hiddenLayerSize = [5 5];
+
+% Create a Fitting Network
+net = fitnet(hiddenLayerSize,trainFcn);
 net.trainParam.showWindow = false;
-% Setup Division of Data for Training, Validation, Testing | help nndivision
-net.divideFcn = 'dividerand';  % Divide data randomly
+net.input.processFcns = {'removeconstantrows','mapminmax'};
+net.output.processFcns = {'removeconstantrows','mapminmax'};
+net.divideFcn = 'divideind';  % Divide data randomly
 net.divideMode = 'sample';  % Divide up every sample
-net.divideParam.trainRatio = 90/100;
-net.divideParam.valRatio = 5/100;
+net.divideParam.trainRatio = 70/100;
+net.divideParam.valRatio = 25/100;
 net.divideParam.testRatio = 5/100;
-
-% Choose a Performance Function | help nnperformance
-%net.performFcn = 'mse';  % Mean Squared Error
 net.performFcn = 'mse';
-[net,tr] = train(net,zeros(10,5)',zeros(10,1)');
+
+i = 1;
+while i <= 300
+    currentState = [0.4*rand-0.2, 0.2*rand-1, (2*pi*rand-pi)/30,(2*pi*rand-pi)/30];
+    actionNr = 0;
+    
+    while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && i <= 300)
+        
+        action = actions(floor(4*rand) + 1);
+        nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4));
+        Input(i,1:5) = [currentState action];
+        Target(i,1) = rand;
+        currentState = nextState;
+        i = i + 1;
+        
+    end
+end
+
+[net,tr] = train(net,Input',Target');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Q-fitted training
@@ -68,6 +90,8 @@ net.performFcn = 'mse';
 bestActionNr = 0;
 % Goal of the training
 maxRange = 2000;
+Input = [];
+Target = [];
 for k = 1:15
     speedUp = 0;
     for i = 1:20+10*k
