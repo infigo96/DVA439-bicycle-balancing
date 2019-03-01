@@ -92,7 +92,7 @@ bestActionNr = 0;
 maxRange = 2000;
 Input = [];
 Target = [];
-for k = 1:15
+for k = 1:10
     speedUp = 0;
     for i = 1:20+10*k
         currentState = [-1.2 + (2.4)*rand, 0 ,-pi/40 + (pi/20)*rand, 0];
@@ -150,7 +150,7 @@ for k = 1:15
         %net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')
         Target = -0.05 - 0.1*(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos) + 0.9*minimididadta;
         Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
-        adapt(net, fliplr(Input'),fliplr(Target'));
+        [net,tr] = adapt(net, fliplr(Input'),fliplr(Target'));
         if actionNr == 1000
             speedUp = speedUp + 1;
         end
