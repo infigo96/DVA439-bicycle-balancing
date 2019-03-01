@@ -64,7 +64,7 @@ net.divideParam.testRatio = 5/100;
 net.performFcn = 'mse';
 
 i = 1;
-while i <= 300
+while i <= 5
     currentState = [0.4*rand-0.2, 0.2*rand-1, (2*pi*rand-pi)/30,(2*pi*rand-pi)/30];
     actionNr = 0;
     
@@ -145,13 +145,13 @@ for k = 1:15
         % Calculate cost of next state
         %Target = min(net([TrSet{1,i}(:,1:4)' actions(1)]), net([TrSet{1,i}(:,1:4)' actions(2)]), net([TrSet{1,i}(:,1:4)' actions(3)]), net([TrSet{1,i}(:,1:4)' actions(4)]));
         %for(minil = 1:lenght(TrSet{1,i}(1,:)))
-        minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')])';
+        minimididadta = max([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')])';
         %             Q3 = net([currentState actions(3)]');
         %             Q4 = net([currentState actions(4)]');
         %net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-        Target = 0.05 + 0.1*(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos) + 0.9*minimididadta;
-        Input = [Input; [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)]];
-        adapt(net, Input',Target');
+        Target = -0.05 - 0.1*(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos) + 0.9*minimididadta;
+        Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
+        adapt(net, fliplr(Input'),fliplr(Target'));
         if actionNr == 1000
             speedUp = speedUp + 1;
         end
@@ -170,10 +170,7 @@ net = bestNet;
 currentState = startState;
 i = 0;
 goalLenght = 2000;
-while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle || i <= goalLenght)
-    if true
-        break;
-    end
+while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && i <= goalLenght)
     i = i + 1;
     
     set(f,'XData',[currentState(1) currentState(1)+ sin(currentState(3))]); %x pos of stick
@@ -183,12 +180,7 @@ while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAng
     if(mod(i, 3) == 0)
         action = 10*rand - 5
     else
-        Q1 = net([currentState actions(1)]');
-        Q2 = net([currentState actions(2)]');
-        Q3 = net([currentState actions(3)]');
-        Q4 = net([currentState actions(4)]');
-        
-        [mv, index] = min([Q1 Q2 Q3 Q4]);
+        [mv, index] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
         action = actions(index);
     end
     nextState = SimulatePendel(action*(1 + 0.2*(2*rand - 1)), currentState(1), currentState(2), currentState(3), currentState(4));
