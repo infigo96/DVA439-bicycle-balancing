@@ -48,7 +48,7 @@ nrOfActions = 0;
 
 % Init Net
 % Choose a Training Function and size
-trainFcn = 'trainrp';
+trainFcn = 'trainlm';
 hiddenLayerSize = [5 5];
 
 % Create a Fitting Network
@@ -81,7 +81,6 @@ while i <= 5
 end
 
 [net,tr] = train(net,Input',Target');
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Q-fitted training
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,7 +94,7 @@ Target = [];
 for k = 1:10
     speedUp = 0;
     for i = 1:20+10*k
-        currentState = [-1.2 + (2.4)*rand, 0 ,-pi/40 + (pi/20)*rand, 0];
+        currentState = [-1.2 + (2.4)*rand, rand-0.5 ,-pi/40 + (pi/20)*rand, 2*rand-1];
         TrSet{1, i} = [currentState];
         TrSet{2, i} = [0];
         actionNr = 0;
@@ -104,11 +103,8 @@ for k = 1:10
             
             % Exploration 1/(epsilon) of the time, set false if no exploration
             epsilon = 5*(k-1)+2;
-            if(mod(actionNr, epsilon) == 0 && true)
-                acindex = floor(4*rand)+1;
-            else
+        
                 [minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
-            end
             %    [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
             %    action = actions(index);
             
@@ -144,19 +140,15 @@ for k = 1:10
         % Calculate cost of next state
         %Target = min(net([TrSet{1,i}(:,1:4)' actions(1)]), net([TrSet{1,i}(:,1:4)' actions(2)]), net([TrSet{1,i}(:,1:4)' actions(3)]), net([TrSet{1,i}(:,1:4)' actions(4)]));
         %for(minil = 1:lenght(TrSet{1,i}(1,:)))
-        minimididadta = max([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')])';
+        minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')])';
         %             Q3 = net([currentState actions(3)]');
         %             Q4 = net([currentState actions(4)]');
         %net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-        Target = -0.05 - 0.1*(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos) + 0.9*minimididadta;
+        Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
+        Target = 1*Target + 0.9*minimididadta*(Target==0);
         Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
         [net,tr] = adapt(net, fliplr(Input'),fliplr(Target'));
-        if actionNr == 1000
-            speedUp = speedUp + 1;
-        end
-        if speedUp >= floor((20+10*k)/2)
-            break;
-        end
+        
     end
     %[net,tr] = train(net,Input(:,1:5)', Input(:,6)');
 end
