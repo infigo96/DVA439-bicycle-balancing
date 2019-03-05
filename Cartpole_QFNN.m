@@ -114,6 +114,7 @@ end
 bestActionNr = 0;
 % Goal of the training
 maxRange = 2000;
+breakflag = false;
 for k = 1:15
     speedUp = 0;
     for i = 1:20+10*k
@@ -143,7 +144,9 @@ for k = 1:15
             TrSet{2, i} = [TrSet{2, i}; action];
             currentState = nextState;
             actionNr = actionNr + 1;
-            
+            if actionNr == maxRange
+                breakflag = true;
+            end
             %Set display of internal loop on
             clc;
             if (true)
@@ -179,6 +182,9 @@ for k = 1:15
         end
     end
     [net,tr] = train(net,Input(:,1:5)', Input(:,6)');
+    if breakflag == true
+        break;
+    end
 end
 net = bestNet;
 
@@ -188,7 +194,7 @@ net = bestNet;
 
 currentState = startState;
 i = 0;
-goalLenght = 2000;
+goalLenght = 20000;
 while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle || i <= goalLenght)
     if true
         break;
