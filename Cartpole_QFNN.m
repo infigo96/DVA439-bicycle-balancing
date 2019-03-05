@@ -49,7 +49,7 @@ nrOfActions = 0;
 % Init Net
 % Choose a Training Function and size
 trainFcn = 'trainlm';
-hiddenLayerSize = [5 5];
+hiddenLayerSize = [15 15];
 
 % Create a Fitting Network
 net = fitnet(hiddenLayerSize,trainFcn);
@@ -102,7 +102,7 @@ for i = 1:20000
 
 
         %[minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
-        [minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]')]);
+        [minimididadta, acindex] = min([net([currentState actions(1)]') net([currentState actions(2)]')]);
         %    [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
         %    action = actions(index);
 
@@ -127,10 +127,12 @@ for i = 1:20000
     end
     % Calculate cost of next state
 
-    minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') ])'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
+    minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]')' net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')'],[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
+    maximxdadidta = max([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]')' net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')'],[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
 
     Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
-    Target = 1*Target + 0.9*minimididadta*(Target==0);
+    TemTarg = [((Target(1:end-1)==0) & (Target(2:end) ==1)); 0];
+    Target = 1*Target + 0.9*(maximxdadidta'.*TemTarg + minimididadta'.*(TemTarg == 0 & Target == 0));
     Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
     [net,tr] = adapt(net, fliplr(Input'),fliplr(Target'));
     
@@ -154,7 +156,7 @@ while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAng
     if(mod(i, 3) == 0)
         action = 10*rand - 5
     else
-        [mv, index] = max([net([currentState actions(1)]') net([currentState actions(2)]')]); % net([currentState actions(3)]') net([currentState actions(4)]')
+        [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]')]); % net([currentState actions(3)]') net([currentState actions(4)]')
         action = actions(index);
     end
     nextState = SimulatePendel(action*(1 + 0.2*(2*rand - 1)), currentState(1), currentState(2), currentState(3), currentState(4));
