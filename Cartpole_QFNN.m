@@ -12,7 +12,7 @@ Q3 = 0;
 Q4 = 0;
 
 force = 10;
-actions = [-force, -force/2, force/2, force]; % Either force backward or forward
+actions = [-force, force]; % Either force backward or forward
 allowedPoleAngle = pi/30;
 deathPoleAngle = pi/5;
 allowedCartPos = 0.4;
@@ -65,12 +65,12 @@ net.performFcn = 'mse';
 
 i = 1;
 while i <= 5
-    currentState = [0.4*rand-0.2, 0.2*rand-1, (2*pi*rand-pi)/30,(2*pi*rand-pi)/30];
+    currentState = [0.4*rand-0.2, 0.2*rand-0.1, (2*pi*rand-pi)/30,(2*pi*rand-pi)/30];
     actionNr = 0;
     
     while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && i <= 300)
         
-        action = actions(floor(4*rand) + 1);
+        action = actions(floor(2*rand) + 1);
         nextState = SimulatePendel(action, currentState(1), currentState(2), currentState(3), currentState(4));
         Input(i,1:5) = [currentState action];
         Target(i,1) = rand;
@@ -91,68 +91,51 @@ bestActionNr = 0;
 maxRange = 2000;
 Input = [];
 Target = [];
-for k = 1:30
-    speedUp = 0;
-    for i = 1:20+10*k
-        currentState = [-0.4 + (0.8)*rand, 0 ,-pi/80 + (pi/40)*rand, 0];
-        TrSet{1, i} = [currentState];
-        TrSet{2, i} = [0];
-        actionNr = 0;
-        
-        while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && actionNr < maxRange)
-            
-            % Exploration 1/(epsilon) of the time, set false if no exploration
-            epsilon = 5*(k-1)+2;
-        
-                [minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
-            %    [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
-            %    action = actions(index);
-            
-            %Next state is suspect to a random noise with magnitude 20% of action '*(1 + 0.2*(2*rand - 1))'
-            nextState = SimulatePendel(actions(acindex), currentState(1), currentState(2), currentState(3), currentState(4));
-            TrSet{1, i} = [TrSet{1, i} ; nextState];
-            TrSet{2, i} = [TrSet{2, i}; action];
-            currentState = nextState;
-            actionNr = actionNr + 1;
-            
-            %Set display of internal loop on
-            clc;
-            if (true)
-                disp('Episode: ');
-                disp(i);
-                disp('Survival Actions: ');
-                disp(actionNr);
-                disp('Best Survival Actions: ')
-                disp(bestActionNr)
-            end
-            %Set display of external loop on
-            if (true)
-                disp('Training Iteration: ')
-                disp(k-1)
-            end
+Episodes = [];
+for i = 1:20000
+    currentState = [-0.4 + (0.8)*rand, 0 ,-pi/80 + (pi/40)*rand, 0];
+    TrSet{1, i} = [currentState];
+    TrSet{2, i} = [0];
+    actionNr = 0;
+
+    while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && actionNr < maxRange)
+
+
+        %[minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
+        [minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]')]);
+        %    [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
+        %    action = actions(index);
+
+        %Next state is suspect to a random noise with magnitude
+        nextState = SimulatePendel(actions(acindex), currentState(1), currentState(2), currentState(3), currentState(4));
+        TrSet{1, i} = [TrSet{1, i} ; nextState];
+        TrSet{2, i} = [TrSet{2, i}; action];
+        currentState = nextState;
+        actionNr = actionNr + 1;
+
+        %Set display of internal loop on
+        clc;
+        if (true)
+            disp('Episode: ');
+            disp(i);
+            disp('Survival Actions: ');
+            disp(actionNr);
+            disp('Best Survival Actions: ')
+            disp(max(Episodes));
         end
-        
-        %Save best net
-        if actionNr > bestActionNr
-            bestNet = net;
-            bestActionNr = actionNr;
-        end
-        % Calculate cost of next state
-        %Target = min(net([TrSet{1,i}(:,1:4)' actions(1)]), net([TrSet{1,i}(:,1:4)' actions(2)]), net([TrSet{1,i}(:,1:4)' actions(3)]), net([TrSet{1,i}(:,1:4)' actions(4)]));
-        %for(minil = 1:lenght(TrSet{1,i}(1,:)))
-        minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')])';
-        %             Q3 = net([currentState actions(3)]');
-        %             Q4 = net([currentState actions(4)]');
-        %net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-        Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
-        Target = 1*Target + 0.9*minimididadta*(Target==0);
-        Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
-        [net,tr] = adapt(net, fliplr(Input'),fliplr(Target'));
         
     end
-    %[net,tr] = train(net,Input(:,1:5)', Input(:,6)');
+    % Calculate cost of next state
+
+    minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]') ])'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
+
+    Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
+    Target = 1*Target + 0.9*minimididadta*(Target==0);
+    Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
+    [net,tr] = adapt(net, fliplr(Input'),fliplr(Target'));
+    
+    Episodes = [Episodes actionNr];
 end
-net = bestNet;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simulate
@@ -171,7 +154,7 @@ while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAng
     if(mod(i, 3) == 0)
         action = 10*rand - 5
     else
-        [mv, index] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
+        [mv, index] = max([net([currentState actions(1)]') net([currentState actions(2)]')]); % net([currentState actions(3)]') net([currentState actions(4)]')
         action = actions(index);
     end
     nextState = SimulatePendel(action*(1 + 0.2*(2*rand - 1)), currentState(1), currentState(2), currentState(3), currentState(4));
@@ -215,3 +198,5 @@ title("Rod angle");
 toPlot = 0;
 disp('bestNr')
 disp(bestActionNr)
+figure;
+plot(Episodes);
