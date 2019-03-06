@@ -1,10 +1,8 @@
-function [Out2] = ANN_cykel(TrainSet,TestSet,TrainRes,TestRes,Training,depth,width,iter,TrainFactor)
+function [Out2,NewTraining,w1,w2,w3,bias1,bias2] = ANN_cykel(TrainSet,TestSet,TrainRes,TestRes,Training,depth,width,iter,TrainFactor,NewTraining,w1,w2,w3,bias1,bias2)
 
 
-
-
-    %Sigmoid function
-    sig = @(x) 1./(1 + exp(-x)); 
+    %Activation function
+    sig = @(x) 1./(1 + exp(-x));  %Sigmoid
 
 
     
@@ -12,32 +10,26 @@ if (Training == 1)
     [TrainSize,n]= size(TrainSet);
      
     T=TrainRes;
-   
-%ANN parameters------------------------------------------------------------
-
-%     %Dimensions 
-%     depth=100;
-%     width=5;
-% 
-%     %Traning factor
-      %TrainFactor = 0.001; 
-%     %Training iterations
-%     iter = 10000; 
 
     %Initializations-------------------------------------------------------
     d1=ones(TrainSize,width,depth); %hidden layers
 
-    %Initial weigths
-    w1=2*rand(n,width) - 1; %Input layer to first hidden layer
-    w2=2*rand(width,width,depth-1) - 1; %hidden layers
-    w3=2*rand(width,1) - 1; %output layer
+    if (NewTraining == 1)
+        %Initial weigths
+        w1=2*rand(n,width) - 1; %Input layer to first hidden layer
+        w2=2*rand(width,width,depth-1) - 1; %hidden layers
+        w3=2*rand(width,1) - 1; %output layer
+
+        %Initial bias
+        bias1 = 2*rand(width,depth) - 1; %hidden layers
+        bias2 = 2*rand(1) - 1; %output layer
+        
+        NewTraining = 0;
+    end
 
     %Initial delta_weights
     dw2=ones(width,width,depth-1); %hidden layers
 
-    %Initial bias
-    bias1 = 2*rand(width,depth) - 1; %hidden layers
-    bias2 = 2*rand(1) - 1; %output layer
 
     %Initial delta_bias
     dbias1=ones(width,depth);
@@ -124,37 +116,8 @@ if (Training == 1)
         %----------------------------------------------------------------------
 
     end
-%         save('bias1','bias1');  
-%         save('bias2','bias2'); 
-%         save('w1','w1'); 
-%         save('w2','w2'); 
-%         save('w3','w3'); 
-end
-    
-% if(Training ~= 1)
-%     if exist('bias1.mat', 'file') == 2
-%         load('bias1','bias1');
-%     else
-%     end
-%     if exist('bias2.mat', 'file') == 2
-%         load('bias2','bias2');
-%     else
-%     end
-%     if exist('w1.mat', 'file') == 2
-%         load('w1','w1');
-%     else
-%     end
-%     if exist('w2.mat', 'file') == 2
-%         load('w2','w2');
-%     else
-%     end
-%     if exist('w3.mat', 'file') == 2
-%         load('w3','w3');
-%     else
-%     end
-% end 
 
-
+elseif(Training ~= 1)
 %Prediction----------------------------------------------------------------
 
 
@@ -187,5 +150,6 @@ end
 
             Out2=sig(tosig3); %Sigmoid on output layer
   
+end
 end
 
