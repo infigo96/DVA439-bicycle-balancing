@@ -1,0 +1,56 @@
+! Adams View Adams 2018.1 Student Edition (built Oct 12 2018)
+! Graphics:  OpenGL
+! Enter a command, '?', or 'help'.
+interface dialog undisplay dialog=.gui.new_start_session_panel
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  SELECT OBJECT
+undo begin
+default coordinate_system default_coordinate_system=.Bike
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  SELECT OBJECT
+undo begin
+default coordinate_system default_coordinate_system=.Bike
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+model display model=.Bike view=all
+! >> model display model=.Bike view=all
+! VERIFY MODEL: .Bike
+! 
+!   -6 Gruebler Count (approximate degrees of freedom)
+!    5 Moving Parts (not including ground)
+!    3 Cylindrical Joints
+!    6 Planar Joints
+!    1 Revolute Joints
+!    1 Motions
+! 
+!    8 Degrees of Freedom for .Bike
+! 
+! There are 14 redundant constraint equations.
+! 
+!    This constraint:                                          unnecessarily removes this DOF:
+! 
+!    .Bike.TorqueMotor.joi_rotor_stator  (Revolute Joint)      Rotation Between Zi & Xj
+!    .Bike.TorqueMotor.joi_rotor_stator  (Revolute Joint)      Rotation Between Zi & Yj
+!    .Bike.Fork2FrameCylinder            (Cylindrical Joint)   Rotation Between Zi & Xj
+!    .Bike.Fork2FrameCylinder            (Cylindrical Joint)   Rotation Between Zi & Yj
+!    .Bike.Fork2Frame_Bottom             (Planar Joint)        Translation Along Zj
+!    .Bike.Fork2Frame_Bottom             (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.Fork2Frame_Bottom             (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.Coincident1                   (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.Coincident1                   (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.FrontWheel2Fork               (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.FrontWheel2Fork               (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.Ground2Right                  (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.Ground2Front                  (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.Ground2Front                  (Planar Joint)        Rotation Between Zi & Yj
+! 
+! 
+! Model verified successfully
+! ERROR:  PINPUT/0 is not defined in the data set. Command ignored.
+quit conf=no

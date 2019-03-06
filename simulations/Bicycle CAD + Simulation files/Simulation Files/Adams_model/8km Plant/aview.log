@@ -1,0 +1,105 @@
+! Adams View Adams 2018.1 Student Edition (built Oct 12 2018)
+! Graphics:  OpenGL
+! Enter a command, '?', or 'help'.
+interface dialog undisplay dialog=.gui.new_start_session_panel
+model display model=.Bike view=all
+! >> model display model=.Bike view=all
+! VERIFY MODEL: .Bike
+! 
+!   -6 Gruebler Count (approximate degrees of freedom)
+!    5 Moving Parts (not including ground)
+!    3 Cylindrical Joints
+!    6 Planar Joints
+!    1 Revolute Joints
+!    1 Motions
+! 
+!    8 Degrees of Freedom for .Bike
+! 
+! There are 14 redundant constraint equations.
+! 
+!    This constraint:                                          unnecessarily removes this DOF:
+! 
+!    .Bike.TorqueMotor.joi_rotor_stator  (Revolute Joint)      Rotation Between Zi & Xj
+!    .Bike.TorqueMotor.joi_rotor_stator  (Revolute Joint)      Rotation Between Zi & Yj
+!    .Bike.Fork2FrameCylinder            (Cylindrical Joint)   Rotation Between Zi & Xj
+!    .Bike.Fork2FrameCylinder            (Cylindrical Joint)   Rotation Between Zi & Yj
+!    .Bike.Fork2Frame_Bottom             (Planar Joint)        Translation Along Zj
+!    .Bike.Fork2Frame_Bottom             (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.Fork2Frame_Bottom             (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.Coincident1                   (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.Coincident1                   (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.FrontWheel2Fork               (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.FrontWheel2Fork               (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.Ground2Right                  (Planar Joint)        Rotation Between Zi & Yj
+!    .Bike.Ground2Front                  (Planar Joint)        Rotation Between Zi & Xj
+!    .Bike.Ground2Front                  (Planar Joint)        Rotation Between Zi & Yj
+! 
+! 
+! Model verified successfully
+! ERROR:  PINPUT/0 is not defined in the data set. Command ignored.
+interface dialog undisplay dialog=.gui.msg_box
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Translate
+undo begin
+default coordinate_system default_coordinate_system=.Bike
+view center view=.gui.main.front object=15.0439909701, 2.6042189128, 0.1487100118
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Zoom
+undo begin
+view zoom view=.gui.main.front zoom=6.2446675031
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Translate
+undo begin
+view center view=.gui.main.front object=3.0127702038, -0.2798609588, 0.1487100118
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Zoom
+undo begin
+view zoom view=.gui.main.front zoom=0.7993981946
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Rotate
+undo begin
+view rotate view=.gui.main.front screen=1.7621924835, 1.0475408877, 0.2170187084
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Translate
+undo begin
+view center view=.gui.main.front object=5.2307097597, 3.4561725967, -0.7807961416
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Zoom
+undo begin
+view zoom view=.gui.main.front zoom=5.3412797992
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MODIFY View Translate
+undo begin
+view center view=.gui.main.front object=6.0865286529, 4.7944451984, -1.6726789105
+undo end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+

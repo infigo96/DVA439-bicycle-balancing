@@ -1,4 +1,12 @@
-function [torque] = kit(states, deathStates)
+function torque  = kit(states)
+
+previousTorque = states(:,1);
+deriv_leanAngle = states(:,2);
+leanAngle = states(:,3);
+steerAngle = states(:,4);
+deriv_steerAngle = states(:,5);
+death_state = states(:,6);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Setup initial experiences
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
