@@ -10,7 +10,7 @@ Q1 = 0;
 Q2 = 0;
 Q3 = 0;
 Q4 = 0;
-
+     
 force = 10;
 actions = [-force, -force/2, force/2, force]; % Either force backward or forward
 allowedPoleAngle = pi/30;

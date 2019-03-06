@@ -1,0 +1,7 @@
+Hello Anas
+
+There is a copy of the two papers located in the same folder as the matlab and simulink files.
+
+Note! 
+Before running the both of the models, you first need to run the matlab script "DynamicModelParameters"
+and to change the velocity for the models you need to change the variable "v" to desired velocity.
