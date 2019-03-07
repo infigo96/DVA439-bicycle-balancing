@@ -1,4 +1,4 @@
-function [Out2,NewTraining,w1,w2,w3,bias1,bias2] = ANN_cykel(TrainSet,TestSet,TrainRes,TestRes,Training,depth,width,iter,TrainFactor,NewTraining,w1,w2,w3,bias1,bias2)
+function [Out2,NewTraining,BestW1,BestW2,BestW3,BestBias1,BestBias2,RMSE_Best] = ANN_cykel(TrainSet,TestSet,TrainRes,TestRes,Training,depth,width,iter,TrainFactor,NewTraining,w1,w2,w3,bias1,bias2,RMSE_Best)
 
 
     %Activation function
@@ -67,7 +67,22 @@ if (Training == 1)
             tosig3=Out1(:,:,depth)*w3+bias2; %Output layer
 
             Out2=sig(tosig3); %Sigmoid on output layer
-
+            
+            
+        %RMSE------------------------------------------------------------------ 
+       
+            RMSE = sqrt(mean((Out2 - TrainRes).^2));  % Root Mean Squared Error
+            
+            if (RMSE < RMSE_Best)
+                RMSE_Best = RMSE;
+                BestW1 = w1;
+                BestW2 = w2;
+                BestW3 = w3;
+                BestBias1 = bias1;
+                BestBias2 = bias2;
+            end
+            
+            
         %Backward propagation--------------------------------------------------
 
             %Output delta      
