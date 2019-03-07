@@ -5,7 +5,9 @@ close all;
 % Cartpole state limiters and actions constants
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 startState = [0 0 0 0];
-
+RMSE_Best = 10;
+width = 5;
+depth = 2;
 Q1 = 0;
 Q2 = 0;
 Q3 = 0;
@@ -57,12 +59,12 @@ hiddenLayerSize = [15 15];
 % Training fuction can be set inside initNN()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %net = initNN(Input(:,1:5)', Input(:,6)', [5 5]);
-w1=2*rand(5,5) - 1; %Input layer to first hidden layer
-w2=2*rand(5,5,2-1) - 1; %hidden layers
-w3=2*rand(5,1) - 1; %output layer
+w1=2*rand(5,width) - 1; %Input layer to first hidden layer
+w2=2*rand(width,width,depth-1) - 1; %hidden layers
+w3=2*rand(width,1) - 1; %output layer
 
-    %Initial bias
-bias1 = 2*rand(5,2) - 1; %hidden layers
+%Initial bias
+bias1 = 2*rand(width,depth) - 1; %hidden layers
 bias2 = 2*rand(1) - 1; %output layer
 
 currentState = startState;
@@ -88,12 +90,14 @@ for i = 1:20000
 
     while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && actionNr < maxRange)
 
-
-        %[minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
-        [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-        [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-        [mv, acindex] = min([Q1 Q2]);
-        
+        if(i <= 150 && mod(i,3) ~= 0)
+            acindex = floor(2*rand) + 1;
+        else
+            %[minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
+            [Q1,~,~,~,~,~,~] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2);
+            [Q2,~,~,~,~,~,~] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2);
+            [mv, acindex] = min([Q1 Q2]);
+        end
         %    action = actions(index);
 
         %Next state is suspect to a random noise with magnitude
@@ -117,15 +121,15 @@ for i = 1:20000
     end
     % Calculate cost of next state
 
-    [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-    [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+    [Q1,~,~,~,~,~,~] = ANN_cykel([0 0 0 0 0],[TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)], 0, 0,0,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2);
+    [Q2,~,~,~,~,~,~] = ANN_cykel([0 0 0 0 0],[TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)], 0, 0,0,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2);
     [mv, acindex] = min([Q1 Q2],[],2);
     
     Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
     Target = 1*Target + 0.9*mv'*(Target==0);
     Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
     
-    [output,NewTraning,w1,w2,w3,bias1,bias2] = ANN_cykel(Input,[0 0 0 0 0], Target, 0,1,2,5,200,0.01,0,w1,w2,w3,bias1,bias2); 
+    [output,NewTraning,w1,w2,w3,bias1,bias2] = ANN_cykel(Input,[0 0 0 0 0], Target, 0,1,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2); 
     
     Episodes = [Episodes actionNr];
 end
@@ -148,8 +152,8 @@ while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAng
     if(mod(i, 3) == 0)
         action = 10*rand - 5
     else
-            [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-            [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+            [Q1,~,~,~,~,~,~] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2);
+            [Q2,~,~,~,~,~,~] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2);
 
 
         [mv, index] = min([Q1 Q2]);
