@@ -51,53 +51,24 @@ nrOfActions = 0;
 trainFcn = 'trainlm';
 hiddenLayerSize = [15 15];
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Initiate network
-    % Random weight/bias initiation
-    % Training fuction can be set inside initNN()
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %net = initNN(Input(:,1:5)', Input(:,6)', [5 5]);
-    w1=2*rand(5,5) - 1; %Input layer to first hidden layer
-    w2=2*rand(5,5,2-1) - 1; %hidden layers
-    w3=2*rand(5,1) - 1; %output layer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Initiate network
+% Random weight/bias initiation
+% Training fuction can be set inside initNN()
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%net = initNN(Input(:,1:5)', Input(:,6)', [5 5]);
+w1=2*rand(5,5) - 1; %Input layer to first hidden layer
+w2=2*rand(5,5,2-1) - 1; %hidden layers
+w3=2*rand(5,1) - 1; %output layer
 
-        %Initial bias
-    bias1 = 2*rand(5,2) - 1; %hidden layers
-    bias2 = 2*rand(1) - 1; %output layer
-    
-    currentState = startState;
-    i = 0;
-    while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle)
-        i = i + 1;
+    %Initial bias
+bias1 = 2*rand(5,2) - 1; %hidden layers
+bias2 = 2*rand(1) - 1; %output layer
 
-        %set(f,'XData',[currentState(1) currentState(1)+ sin(currentState(3))]); %x pos of stick
-        %set(g,'XData',currentState(1)); %x pos of dot
-        %set(f,'YData',[0 cos(currentState(3))]); %y pos of stick
-
-        if(mod(i, 3) == 0)
-            action = 10*rand - 5;
-        else
-            %Q1 = net([currentState actions(1)]');
-            %Q2 = net([currentState actions(2)]');
-            %Q3 = net([currentState actions(3)]');
-            %Q4 = net([currentState actions(4)]');
-            [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-            [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-            [Q3,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(3)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
-            [Q4,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(4)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+currentState = startState;
+i = 0;
 
 
-            [mv, index] = min([Q1 Q2 Q3 Q4]);
-            action = actions(index);
-        end
-        nextState = SimulatePendel(action*(1 + 0.2*(2*rand - 1)), currentState(1), currentState(2), currentState(3), currentState(4));
-        currentState = nextState;
-        i = i + 1;
-        
-    end
-end
-
-[net,tr] = train(net,Input',Target');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Q-fitted training
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -119,14 +90,16 @@ for i = 1:20000
 
 
         %[minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
-        [minimididadta, acindex] = min([net([currentState actions(1)]') net([currentState actions(2)]')]);
-        %    [mv, index] = min([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
+        [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+        [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+        [mv, acindex] = min([Q1 Q2]);
+        
         %    action = actions(index);
 
         %Next state is suspect to a random noise with magnitude
         nextState = SimulatePendel(actions(acindex), currentState(1), currentState(2), currentState(3), currentState(4));
         TrSet{1, i} = [TrSet{1, i} ; nextState];
-        TrSet{2, i} = [TrSet{2, i}; action];
+        TrSet{2, i} = [TrSet{2, i}; actions(acindex)];
         currentState = nextState;
         actionNr = actionNr + 1;
 
@@ -144,14 +117,15 @@ for i = 1:20000
     end
     % Calculate cost of next state
 
-    minimididadta = min([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]')' net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')'],[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-    maximxdadidta = max([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]')' net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')'],[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-
+    [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+    [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+    [mv, acindex] = min([Q1 Q2],[],2);
+    
     Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
-    TemTarg = [((Target(1:end-1)==0) & (Target(2:end) ==1)); 0];
-    Target = 1*Target + 0.9*(maximxdadidta'.*TemTarg + minimididadta'.*(TemTarg == 0 & Target == 0));
+    Target = 1*Target + 0.9*mv'*(Target==0);
     Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
-    [net,tr] = adapt(net, fliplr(Input'),fliplr(Target'));
+    
+    [output,NewTraning,w1,w2,w3,bias1,bias2] = ANN_cykel(Input,[0 0 0 0 0], Target, 0,1,2,5,200,0.01,0,w1,w2,w3,bias1,bias2); 
     
     Episodes = [Episodes actionNr];
 end
@@ -174,13 +148,11 @@ while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAng
     if(mod(i, 3) == 0)
         action = 10*rand - 5
     else
-            [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,2,5,200,0.01,1,0,0,0,0,0);
-            [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,2,5,200,0.01,1,0,0,0,0,0);
-            [Q3,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(3)], 0, 0,0,2,5,200,0.01,1,0,0,0,0,0);
-            [Q4,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(4)], 0, 0,0,2,5,200,0.01,1,0,0,0,0,0);
+            [Q1,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(1)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
+            [Q2,~,~,~,~,~,~,] = ANN_cykel([0 0 0 0 0],[currentState actions(2)], 0, 0,0,2,5,200,0.01,0,w1,w2,w3,bias1,bias2);
 
 
-        [mv, index] = min([Q1 Q2 Q3 Q4]);
+        [mv, index] = min([Q1 Q2]);
         action = actions(index);
     end
     nextState = SimulatePendel(action*(1 + 0.2*(2*rand - 1)), currentState(1), currentState(2), currentState(3), currentState(4));
