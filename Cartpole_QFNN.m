@@ -15,9 +15,9 @@ Q4 = 0;
 
 force = 10;
 actions = [-force, force]; % Either force backward or forward
-allowedPoleAngle = pi/30;
+allowedPoleAngle = pi/10;
 deathPoleAngle = pi/5;
-allowedCartPos = 0.4;
+allowedCartPos = 1.2;
 deathCartPos = 2.4;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,7 +90,7 @@ for i = 1:20000
 
     while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && actionNr < maxRange)
 
-        if(i <= 150 && mod(i,3) ~= 0)
+        if(i <= 500 && mod(ceil(3*rand),3) ~= 0)
             acindex = floor(2*rand) + 1;
         else
             %[minimididadta, acindex] = max([net([currentState actions(1)]') net([currentState actions(2)]') net([currentState actions(3)]') net([currentState actions(4)]')]);
@@ -126,7 +126,7 @@ for i = 1:20000
     [mv, acindex] = min([Q1 Q2],[],2);
     
     Target = (abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos);
-    Target = 1*Target + 0.9*mv'*(Target==0);
+    Target = 1*Target + 0.9*mv.*(Target==0);
     Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
     
     [output,NewTraning,w1,w2,w3,bias1,bias2] = ANN_cykel(Input,[0 0 0 0 0], Target, 0,1,depth,width,200,0.01,0,w1,w2,w3,bias1,bias2); 

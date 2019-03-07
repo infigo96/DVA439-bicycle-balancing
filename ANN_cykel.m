@@ -71,7 +71,7 @@ if (Training == 1)
             %Multiply weights with hidden layer outputs and add bias
             tosig3=Out1(:,:,depth)*w3+bias2; %Output layer
 
-            Out2=sig(tosig3); %Sigmoid on output layer
+            Out2=softmax(tosig3); %Sigmoid on output layer
             
             
         %RMSE------------------------------------------------------------------ 
@@ -167,7 +167,7 @@ elseif(Training ~= 1)
             %Multiply weights with hidden layer outputs and add bias
             tosig3=Out1(:,:,depth)*w3+bias2; %Output layer
 
-            Out2=sig(tosig3); %Sigmoid on output layer
+            Out2=softmax(tosig3); %Sigmoid on output layer
   
 end
 end
