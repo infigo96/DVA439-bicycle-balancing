@@ -25,8 +25,8 @@ net.divideParam.testRatio = 5/100;
 
 % Choose a Performance Function | help nnperformance
 %net.performFcn = 'mse';  % Mean Squared Error
-net.performFcn = 'mse';
-net.performParam.regularization = 0.1;
+net.performFcn = 'mae';
+net.performParam.regularization = 0.5;
 net.performParam.normalization = 'none';
 
 % Choose Plot Functions | help nnplot

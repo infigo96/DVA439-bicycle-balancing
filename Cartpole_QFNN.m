@@ -174,12 +174,6 @@ for k = 1:15
          
         Target = 0.05 + 0.90*(abs(TrSet{1,i}(:,3)) > allowedPoleAngle | abs(TrSet{1,i}(:,1)) > allowedCartPos);
         Input = [Input; [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)] Target(2:end)];
-        if actionNr == 1000
-            speedUp = speedUp + 1;
-        end
-        if speedUp >= floor((20+10*k)/2)
-            break;
-        end
     end
     [net,tr] = train(net,Input(:,1:5)', Input(:,6)');
     if breakflag == true
