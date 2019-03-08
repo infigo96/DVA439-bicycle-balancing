@@ -1,5 +1,5 @@
 %One script to rule them all
-
+close all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Cartpole state limiters and actions constants
@@ -84,12 +84,7 @@ while(1)
     i = 0;
     while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle)
         i = i + 1;
-
-        %set(f,'XData',[currentState(1) currentState(1)+ sin(currentState(3))]); %x pos of stick
-        %set(g,'XData',currentState(1)); %x pos of dot
-        %set(f,'YData',[0 cos(currentState(3))]); %y pos of stick
-
-        if(mod(i, 3) == 0)
+        if(mod(i, 3) == 0 && false)
             action = 10*rand - 5;
         else
             Q1 = net([currentState actions(1)]');
@@ -175,7 +170,7 @@ for k = 1:15
         Target = 0.05 + 0.90*(abs(TrSet{1,i}(:,3)) > allowedPoleAngle | abs(TrSet{1,i}(:,1)) > allowedCartPos);
         Input = [Input; [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)] Target(2:end)];
     end
-    [net,tr] = train(net,Input(:,1:5)', Input(:,6)');
+    [net,tr] = adapt(net,Input(:,1:5)', Input(:,6)');
     if breakflag == true
         break;
     end
