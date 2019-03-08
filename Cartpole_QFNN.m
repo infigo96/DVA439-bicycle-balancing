@@ -50,7 +50,7 @@ nrOfActions = 0;
 % Init Net
 % Choose a Training Function and size
 trainFcn = 'trainrp';
-hiddenLayerSize = [10 10 10];
+hiddenLayerSize = [10 8 6];
 
 % Create a Fitting Network
 net = fitnet(hiddenLayerSize,trainFcn);
@@ -62,7 +62,7 @@ net.performFcn = 'mse';
 net.layers{1}.transferFcn = 'tansig';
 net.layers{2}.transferFcn = 'tansig';
 net.layers{3}.transferFcn = 'tansig';
-net.layers{4}.transferFcn = 'tansig';
+net.layers{4}.transferFcn = 'logsig';
 
 
 i = 1;
@@ -83,8 +83,8 @@ end
 
 [net,tr] = adapt(net,Input',Target');
 % constant weights/biases init to initTarget value. 
-if(true)
-    factor = -1;
+if(false)
+    factor = 1;
     net.IW{1} = ones(10,5)*factor;
     net.LW{2,1} = ones(10,10)*factor;
     net.LW{3,2} = ones(10,10)*factor;
@@ -115,14 +115,14 @@ trainSet = [];
 AcChoise = [];
 for i = 1:200
     while (length(ExpPool)<=200*i)
-        currentState = [0 0 0 0]; %[-0.4 + (0.8)*rand, 0 ,-pi/80 + (pi/40)*rand, 0];
+        currentState = [-0.4 + (0.8)*rand, 0 ,-pi/80 + (pi/40)*rand, 0]; %[0 0 0 0]; %
         TrSet{1, i} = [currentState];
         TrSet{2, i} = [0];
         actionNr = 0;
 
         while(abs(currentState(1)) <= deathCartPos && abs(currentState(3))<=deathPoleAngle && actionNr < maxRange)
             Qvalues = zeros(1,2);
-            if (rand < 0.05+0.8^i)
+            if (rand < 0.05)
                 acindex = ceil(2*rand);
                 AcChoise = [AcChoise; acindex 0 0 0];
             else
@@ -131,7 +131,7 @@ for i = 1:200
                 if Qvalues(1) == Qvalues(2)
                     acindex = ceil(2*rand);
                 else
-                    [minimididadta, acindex] = min(Qvalues);
+                    [minimididadta, acindex] = max(Qvalues);
                     AcChoise = [AcChoise; acindex 1 Qvalues];
                 end
             end
@@ -154,29 +154,39 @@ for i = 1:200
                 disp('Best Survival Actions: ')
                 disp(max(Episodes));
             end
-
         end
         % Calculate cost of next state
-        minimididadta = min(abs([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]')' net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')']),[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-
-        %minimididadta(end) = 1;
-        Target = 0.8*minimididadta'+0.2*(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos); % add for Q:learn 
+        minimididadta = max(abs([net([TrSet{1,i}(2:end,:) actions(1)*ones(length(TrSet{1,i}(2:end,1)),1)]')' net([TrSet{1,i}(2:end,:) actions(2)*ones(length(TrSet{1,i}(2:end,1)),1)]')']),[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
+        minimididadta(end) = 1;
+        currVal = net([TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)]');
+        Target = 0.9*currVal'+0.1*(-0.9*minimididadta'+(abs(TrSet{1,i}(2:end,3)) > allowedPoleAngle | abs(TrSet{1,i}(2:end,1)) > allowedCartPos)); % add for Q:learn 
         Input = [TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:)];
 
         ExpPool = [ExpPool; TrSet{1,i}(1:end-1,:) TrSet{2,i}(2:end,:) Target];
         Episodes = [Episodes actionNr];
     end
-    if (mod(i,5) == 0) %ExpPool(:,1:5) ones(length(ExpPool)*action(1),1)),1)
-        minimididadta = min(abs([net([ExpPool(:,1:4) actions(1)'*ones(length(ExpPool),1)]')' net([ExpPool(:,1:4) actions(2)'*ones(length(ExpPool),1)]')' ]),[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
-        ExpPool(:,6) = 0.8*minimididadta'+0.2*(abs(ExpPool(1:end,3)) > allowedPoleAngle | abs(ExpPool(1:end,1)) > allowedCartPos);
-    end
-    trainSetStruct = cvpartition(ExpPool(:,6),'HoldOut',200);
-    trainBitVec = trainSetStruct.test;
-    trainIdx = find(trainBitVec == 1);
-    trainSet = [trainSet; ExpPool(trainIdx,:)];
     
-    [net,tr, output, error] = adapt(net, trainSet(:, 1:5)',trainSet(:,6)');
-    errorVec = [errorVec; error];
+    %  Update experiences based on new qutable (bad idea?)
+    %         minimididadta = min(abs([net([ExpPool(:,1:4) actions(1)'*ones(length(ExpPool),1)]')' net([ExpPool(:,1:4) actions(2)'*ones(length(ExpPool),1)]')' ]),[],2)'; %net([TrSet{1,i}(2:end,:) actions(3)*ones(length(TrSet{1,i}(2:end,1)),1)]') net([TrSet{1,i}(2:end,:) actions(4)*ones(length(TrSet{1,i}(2:end,1)),1)]')
+    %         ExpPool(:,6) = 0.8*minimididadta'+0.2*(abs(ExpPool(1:end,3)) > allowedPoleAngle | abs(ExpPool(1:end,1)) > allowedCartPos);
+
+    if (mod(i,50) == 0) %ExpPool(:,1:5) ones(length(ExpPool)*action(1),1)),1)
+        trainSetStruct = cvpartition(ExpPool(:,6),'HoldOut',length(ExpPool)-1);
+        trainBitVec = trainSetStruct.test;
+        trainIdx = find(trainBitVec == 1);
+        trainSet = [trainSet; ExpPool(trainIdx,:)];
+
+        [net,tr, output, error] = train(net, trainSet(:, 1:5)',trainSet(:,6)');
+        errorVec = [errorVec; error];
+    else
+        trainSetStruct = cvpartition(ExpPool(:,6),'HoldOut',200);
+        trainBitVec = trainSetStruct.test;
+        trainIdx = find(trainBitVec == 1);
+        trainSet = [trainSet; ExpPool(trainIdx,:)];
+
+        [net,tr, output, error] = adapt(net, trainSet(:, 1:5)',trainSet(:,6)');
+        errorVec = [errorVec; error];
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
