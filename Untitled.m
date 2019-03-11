@@ -18,7 +18,7 @@ t = Q';
 trainFcn = 'trainlm';  % Levenberg-Marquardt backpropagation.
 
 % Create a Fitting Network
-hiddenLayerSize = [10 10];
+hiddenLayerSize = [40 40];
 net = fitnet(hiddenLayerSize,trainFcn);
 
 % Choose Input and Output Pre/Post-Processing Functions
@@ -30,7 +30,7 @@ net.output.processFcns = {'removeconstantrows','mapminmax'};
 % For a list of all data division functions type: help nndivision
 net.divideFcn = 'dividerand';  % Divide data randomly
 net.divideMode = 'sample';  % Divide up every sample
-net.trainParam.max_fail = 1000;
+net.trainParam.max_fail = 100;
 net.divideParam.trainRatio = 70/100;
 net.divideParam.valRatio = 15/100;
 net.divideParam.testRatio = 15/100;
