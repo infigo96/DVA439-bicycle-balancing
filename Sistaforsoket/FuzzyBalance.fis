@@ -1,0 +1,49 @@
+[System]
+Name='FuzzyBalance'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=9
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='CartPos'
+Range=[-2.4 2.4]
+NumMFs=3
+MF1='Good':'trimf',[-1 0 1]
+MF2='Left':'trimf',[-4.8 -2.4 0]
+MF3='Right':'trimf',[0 2.4 4.8]
+
+[Input2]
+Name='PoleAngle'
+Range=[-0.7 0.7]
+NumMFs=3
+MF1='LeftAngle':'trapmf',[-4.459 -0.931 -0.28 0]
+MF2='Good':'trimf',[-0.175 0 0.175]
+MF3='RightAngle':'trapmf',[0 0.28 0.966 1.204]
+
+[Output1]
+Name='Power'
+Range=[-15 15]
+NumMFs=5
+MF1='LEFT':'trapmf',[-20 -15 -10 -5]
+MF2='Zero':'trimf',[-5 0 5]
+MF3='RIGHT':'trapmf',[5 10 15 20]
+MF4='SLEFT':'trimf',[-10 -5 0]
+MF5='SRIGHT':'trimf',[0 5 10]
+
+[Rules]
+1 2, 2 (1) : 1
+1 1, 4 (1) : 1
+1 3, 5 (1) : 1
+2 2, 5 (1) : 1
+2 1, 1 (1) : 1
+2 3, 3 (1) : 1
+3 2, 4 (1) : 1
+3 1, 1 (1) : 1
+3 3, 3 (1) : 1
