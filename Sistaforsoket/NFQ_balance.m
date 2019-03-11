@@ -42,6 +42,9 @@ clear experience;
 experience = [];
 done = 0;
 train = 1;
+fails = 0;
+adapting = 0;
+
 while done == 0%round < 100  %change later
     
     episode = episode + 1;
@@ -61,13 +64,13 @@ while done == 0%round < 100  %change later
         set(f,'YData',[0 cos(currentState(3))]); %y pos of stick
         
         % Step 4 - Implement Policy or exploration
- 
+        
         rand_nr = rand;
         if rand_nr >= 0.9
             action = 20*rand-10;
             exploration = exploration + 1;
         else
-            [Q, Q_index] = max([net([currentState'; 10]) net([currentState'; -10])]);
+            [Q, Q_index] = min([net([currentState'; 10]) net([currentState'; -10])]);
             action = actions(Q_index);
         end
         
@@ -85,17 +88,28 @@ while done == 0%round < 100  %change later
             most_steps = steps;
         end
         
-%         if max(size(experience)) > 999
-%             tmp = experience(:,max(size(experience))/2:end);
-%             clear experience;
-%             experience = tmp;
-%         end
-%         
-        if steps > 499
+        if steps > 99
+            train = 0;
+            adapting = 1;
+        end
+        
+        if adapting == 1
+            if max(size(experience)) > 999
+                tmp = experience(:,max(size(experience))/2:end);
+                clear experience;
+                experience = tmp;
+            end
+        end
+        
+        if steps > 399
             done = 1;
             atRound = episode;
         end
         
+        if fails > 30
+            clc, clear, close all
+            NFQ_balance;
+        end
         % Displays
         clc
         disp("Round: ");
@@ -108,10 +122,18 @@ while done == 0%round < 100  %change later
         disp(most_steps);
         disp("Exploration: ");
         disp(100*exploration/total);
+        disp("Fails: ");
+        disp(fails);
         
     end
     
-    if experience_count > 100
+    if steps < 30
+        fails = fails + 1;
+    else
+        fails = 0;
+    end
+    
+    if experience_count > 100 && done == 0
         if train == 1
             net = Q_train_matrix(net, experience);
             %train = 0;

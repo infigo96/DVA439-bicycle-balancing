@@ -3,7 +3,7 @@ function rprop_net = train_rprop(input, output)
 % net = newff(input,[12,6,1],{'elliotsig','elliotsig','elliotsig'},'trainrp');
 % net.trainParam.showWindow = false;
 % net.trainParam.showCommandLine = false;
-hiddenLayerSize = [50 50 50 50];
+hiddenLayerSize = [5 5 5 5];
 trainFcn = 'trainrp';
 net = fitnet(hiddenLayerSize,trainFcn);
 
@@ -17,11 +17,11 @@ net.divideParam.valRatio = 25/100;
 net.divideParam.testRatio = 5/100;
 net.performFcn = 'mse';
 
-transFcn = 'elliotsig';
-net.layers{1}.transferFcn = transFcn;
-net.layers{2}.transferFcn = transFcn;
-net.layers{3}.transferFcn = transFcn;
-net.layers{4}.transferFcn = 'purelin';
+% transFcn = 'elliotsig';
+% net.layers{1}.transferFcn = transFcn;
+% net.layers{2}.transferFcn = transFcn;
+% net.layers{3}.transferFcn = transFcn;
+net.layers{4}.transferFcn = 'poslin';
 
 net = train(net,input,output);
 rprop_net = net;

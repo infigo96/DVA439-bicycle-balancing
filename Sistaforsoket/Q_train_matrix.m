@@ -7,14 +7,17 @@ nextState = experience(5:8,:);
 action = experience(9,:);
 ten = 10*ones(1, size_y);
 
-cost1 = -1*((abs(nextState(1,:)) >= 2.4) | (abs(nextState(3,:)) >= 0.7));
+cost1 = 100*((abs(nextState(1,:)) >= 2.4) | (abs(nextState(3,:)) >= 0.7));
 Q1 = old_net([nextState; ten]);
 Q2 = old_net([nextState; -ten]);
-Q = max([Q1 Q2]);
-cost2 = 0.9*Q + -0.01*((abs(nextState(1,:)) < 2.4 & abs(nextState(1,:)) >= 0.05) | (abs(nextState(3,:)) < 0.7 & abs(nextState(3,:)) >= 0.05));
+Q = min([Q1; Q2]);
+cost2 = 0.9*Q + 10*((abs(nextState(1,:)) < 2.4 & abs(nextState(1,:)) >= 0.05) | (abs(nextState(3,:)) < 0.7 & abs(nextState(3,:)) >= 0.05));
+cost3 = ((abs(nextState(1,:)) >= 0.05) | (abs(nextState(3,:)) >= 0.05));
 
 input = [currentState; action];
-output = cost1+cost2;
+updateCost = cost1+cost2;
+output = 0.1*Q + 0.9*updateCost;
+output = output.*cost3;
 
 new_net = train_rprop(input, output);
 end

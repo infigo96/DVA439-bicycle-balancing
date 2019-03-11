@@ -10,13 +10,13 @@ for i = 1:size_y
     
     if(abs(nextState(1)) >= 2.5 || abs(nextState(3)) >= 0.75)
         fail = 0;
-        cost = -1;
+        cost = 10;
     elseif(abs(nextState(1)) <= 0.05 && abs(nextState(3)) <= 0.05)
         fail = 0;
-        cost = 1;
+        cost = 0;
     else
         fail = fail + 1;
-        cost = -0.1*fail;
+        cost = 1*fail;
     end
     
     input(:, i) = [currentState; action];
