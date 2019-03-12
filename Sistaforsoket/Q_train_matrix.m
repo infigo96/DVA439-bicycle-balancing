@@ -1,5 +1,5 @@
-function  new_net = Q_train_matrix(old_net,experience)
-a = 0.1; %learning rate
+function  [new_net, perf] = Q_train_matrix(old_net,experience)
+a = 0.2; %learning rate
 
 [size_x,size_y] = size(experience);
 
@@ -21,4 +21,8 @@ output = (1-a)*Q + a*updateCost;
 output = output.*cost3;
 
 new_net = train_rprop(input, output);
+Q1 = new_net([nextState; ten]);
+Q2 = new_net([nextState; -ten]);
+Q = min([Q1; Q2]);
+perf = perform(new_net,output,Q);
 end

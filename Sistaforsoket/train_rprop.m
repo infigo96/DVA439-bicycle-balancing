@@ -16,7 +16,8 @@ net.divideParam.trainRatio = 70/100;
 net.divideParam.valRatio = 25/100;
 net.divideParam.testRatio = 5/100;
 net.performFcn = 'mse';
-
+net.performParam.regularization = 0.1;
+net.performParam.normalization = 'none';
 % transFcn = 'elliotsig';
 % net.layers{1}.transferFcn = transFcn;
 % net.layers{2}.transferFcn = transFcn;

@@ -1,22 +1,5 @@
 clc, clear, close all
 warning('off', 'all')
-%% Setup pendulum plot
-panel = figure;
-panel.Color = [1 1 1];
-hold on
-% Axis for the pendulum animation
-f = plot(0,0,'b','LineWidth',6); % Pendulum stick
-axPend = f.Parent;
-axPend.XTick = []; % No axis stuff to see
-axPend.YTick = [];
-axPend.Visible = 'off';
-axPend.Clipping = 'off';
-axis equal
-axis([-1.2679 1.2679 -1 1]); %bottom line
-line([-2.4 2.4],[0 0],'color', 'red')
-g  = plot(0.001,0,'.k','MarkerSize',30); % Pendulum axis point
-hold off
-pause(2)
 
 %% Variables
 actions = linspace(-10, 10, 2);
@@ -24,7 +7,9 @@ train = 1; %1 for training and 0 for adapting
 iterations = 1;
 restarts = 0;
 restart = 0;
-while iterations <= 50
+success = 1;
+
+while iterations <= 200
     %% Step 1 - Collect random experiences
     experience = rand_experience;
     [net_input, net_output] = rand_experience_transfer(experience);
@@ -32,7 +17,7 @@ while iterations <= 50
     net = train_rprop(net_input, net_output);
     %% Step 2 - Do iterations with random experiences
     for k = 1:1
-        net = Q_train_matrix(net, experience);
+        [net, perf] = Q_train_matrix(net, experience);
     end
     
     %% Step 3 - Simulate and gather new experience
@@ -47,6 +32,7 @@ while iterations <= 50
     train = 1;
     fails = 0;
     adapting = 0;
+    trainingNr = 1;
     tic;
     while done == 0 && restart == 0
         
@@ -59,7 +45,7 @@ while iterations <= 50
             % Counters
             total = total + 1;
             steps = steps + 1;
-            experience_count = experience_count + 1;      
+            experience_count = experience_count + 1;
             
             % Step 4 - Implement Policy or exploration
             
@@ -116,8 +102,8 @@ while iterations <= 50
             disp(steps);
             disp("Most Steps Taken: ");
             disp(most_steps);
-            disp("Exploration: ");
-            disp(100*exploration/total);
+            disp("Successful nets: ");
+            disp(success);
             disp("Fails: ");
             disp(fails);
             disp("Iteration: ");
@@ -135,22 +121,25 @@ while iterations <= 50
         
         if experience_count > 100 && done == 0
             if train == 1
-                net = Q_train_matrix(net, experience);
+                [net, perf] = Q_train_matrix(net, experience);
                 %train = 0;
             else
-                net = Q_adapt_matrix(net, experience);
+                [net, perf] = Q_adapt_matrix(net, experience);
             end
             experience_count = 0;
+            stepz(trainingNr) = steps;
+            perfz(trainingNr) = perf;
+            trainingNr = trainingNr + 1;
         end
         
-        stepz(episode) = steps;
     end
     if done == 1
-        stats(iterations, 1) = toc;
-        stats(iterations, 2) = episode;
-        stats(iterations, 3) = restarts;
-        stepStats{iterations} = stepz;
-        iterations = iterations + 1;
+        stats(success, 1) = toc;
+        stats(success, 2) = episode;
+        stats(success, 3) = restarts;
+        stepStats{success} = stepz;
+        perfStats{success} = perfz;
+        success = success + 1;
         clear experience;
         experience = [];
     end
@@ -159,4 +148,5 @@ while iterations <= 50
         restart = 0;
         clear_all;
     end
+    iterations = iterations + 1;
 end

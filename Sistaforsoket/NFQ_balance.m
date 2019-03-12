@@ -29,7 +29,7 @@ experience = rand_experience;
 net = train_rprop(net_input, net_output);
 %% Step 2 - Do iterations with random experiences
 for k = 1:1
-    net = Q_train_matrix(net, experience);
+    [net, perf] = Q_train_matrix(net, experience);
 end
 
 %% Step 3 - Simulate and gather new experience
@@ -42,6 +42,7 @@ clear experience;
 experience = [];
 done = 0;
 train = 1;
+nrTrain = 1;
 fails = 0;
 adapting = 0;
 tic;
@@ -78,7 +79,7 @@ while done == 0%round < 100  %change later
         pause(0.02);
         
         % Step 5 - Collect new experience
-        new_experience = [nextState'; currentState'; action];
+        new_experience = [currentState'; nextState'; action];
         currentState = nextState;
         
         experience = [experience new_experience];
@@ -135,15 +136,17 @@ while done == 0%round < 100  %change later
     
     if experience_count > 100 && done == 0
         if train == 1
-            net = Q_train_matrix(net, experience);
+            [net, perf] = Q_train_matrix(net, experience);
             %train = 0;
         else
-            net = Q_adapt_matrix(net, experience);
+            [net, perf] = Q_adapt_matrix(net, experience);
         end
+        nrTrain = nrTrain + 1;
         experience_count = 0;
     end
     
-    stepz(episode) = steps;
+    perfz(nrTrain) = perf;
+    stepz(nrTrain) = steps;
 end
 doneAt = toc;
 %% Simulate
