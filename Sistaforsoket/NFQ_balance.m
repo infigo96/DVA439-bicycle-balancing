@@ -44,14 +44,14 @@ done = 0;
 train = 1;
 fails = 0;
 adapting = 0;
-
+tic;
 while done == 0%round < 100  %change later
     
     episode = episode + 1;
     currentState = [0, 0, (0.05-0.1*rand), 0];
     steps = 0;
     
-    while (abs(currentState(1)) <= 2.5 && abs(currentState(3)) <= 0.75 && done == 0)
+    while (abs(currentState(1)) <= 2.5 && abs(currentState(3)) <= 0.75 && done == 0 && episode < 400)
         
         % Counters
         total = total + 1;
@@ -145,14 +145,18 @@ while done == 0%round < 100  %change later
     
     stepz(episode) = steps;
 end
-
+doneAt = toc;
 %% Simulate
 
-net = best_net;
+%%net = best_net;
 currentState = [rand-0.5, 0, 0.1*rand-0.05, 0];
 i = 0;
 goalLenght = 2000;
-while(abs(currentState(1)) <= 2.4 && abs(currentState(3)) <= 0.7)
+currentState = [1-2*rand, 0, 0.05-0.1*rand, 0];
+i = 0;
+t = 0;
+tic;
+while(abs(currentState(1)) <= 2.4 && abs(currentState(3)) <= 0.7 && t < 45)
     i = i + 1;
     
     set(f,'XData',[currentState(1) currentState(1)+ sin(currentState(3))]); %x pos of stick
@@ -174,16 +178,15 @@ while(abs(currentState(1)) <= 2.4 && abs(currentState(3)) <= 0.7)
     disp('Angle velocity is: ');
     disp(currentState(4));
     disp('Survival time');
-    disp(i*0.02);
+    t = toc;
+    disp(t);
     
     pause(0.02)
     
-    grap(i,1) = i*0.02;
+    grap(i,1) = t;
     grap(i,2) = currentState(1);
     grap(i,3) = currentState(3)*180/pi;
 end
-
-
 %% Plot stats
 
 figure;
@@ -199,7 +202,7 @@ xlabel("Rod angle (Degrees)");
 xlim([-12,12]);
 title("Rod angle");
 scatter(1:max(size(stepz)), stepz);
-title(['Finished goal of 500 steps at round: ',num2str(atRound)]);
+title(['Finished training after: ',num2str(doneAt/60)]);
 
 warning('on', 'all');
 

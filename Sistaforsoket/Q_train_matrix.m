@@ -1,4 +1,5 @@
 function  new_net = Q_train_matrix(old_net,experience)
+a = 0.1; %learning rate
 
 [size_x,size_y] = size(experience);
 
@@ -16,7 +17,7 @@ cost3 = ((abs(nextState(1,:)) >= 0.05) | (abs(nextState(3,:)) >= 0.05));
 
 input = [currentState; action];
 updateCost = cost1+cost2;
-output = 0.1*Q + 0.9*updateCost;
+output = (1-a)*Q + a*updateCost;
 output = output.*cost3;
 
 new_net = train_rprop(input, output);

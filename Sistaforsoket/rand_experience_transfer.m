@@ -16,7 +16,7 @@ for i = 1:size_y
         cost = 0;
     else
         fail = fail + 1;
-        cost = 1*fail;
+        cost = 0.1*fail;
     end
     
     input(:, i) = [currentState; action];
